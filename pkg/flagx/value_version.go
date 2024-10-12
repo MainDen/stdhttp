@@ -21,9 +21,6 @@ func Version(fs *FlagSet, version string, copyright string, license string, url 
 func (v *valueVersion) String() string {
 	var builder strings.Builder
 	_, _ = fmt.Fprintf(&builder, "%v version %v %v/%v (%v)\n", v.fs.name, v.version, runtime.GOOS, runtime.GOARCH, runtime.Version())
-	if v.copyright != "" || v.license != "" || v.url != "" {
-		_, _ = fmt.Fprintf(&builder, "\n")
-	}
 	if v.copyright != "" {
 		_, _ = fmt.Fprintf(&builder, "Copyright (c) %v\n", v.copyright)
 	}
