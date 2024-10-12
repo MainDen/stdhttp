@@ -1,0 +1,28 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Build Artifacts
+        run: chmod +x ./make.sh && chmod -R +x ./scripts && ./make.sh
+        env:
+          VERSION: ${{ github.ref_name }}
+      - name: Release Artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: ".build/*.tar.gz"

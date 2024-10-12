@@ -13,8 +13,8 @@ mkdir -p "$ROOT_DIR/.build"
 # linux
 export GOOS=linux
 export GOARCH=amd64
-tar -cf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "$ROOT_DIR/LICENSE.md" || exit 1
-tar -rf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "$ROOT_DIR/README.md" || exit 1
+tar -cf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "LICENSE.md" || exit 1
+tar -rf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "README.md" || exit 1
 
 # linux console
 export LDFLAGS=""
@@ -27,8 +27,8 @@ gzip -f "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" || exit 1
 # windows
 export GOOS=windows
 export GOARCH=amd64
-tar -cf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "$ROOT_DIR/LICENSE.md" || exit 1
-tar -rf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "$ROOT_DIR/README.md" || exit 1
+tar -cf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "LICENSE.md" || exit 1
+tar -rf "$ROOT_DIR/.build/$APP-$GOOS-$GOARCH.tar" -C "$ROOT_DIR" "README.md" || exit 1
 
 # windows console
 export LDFLAGS=""

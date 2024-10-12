@@ -1,6 +1,6 @@
 #!/bin/sh
 ROOT_DIR=$(dirname "$0")/..
-source "$ROOT_DIR/scripts/utils.sh"
+. "$ROOT_DIR/scripts/utils.sh"
 
 required "APP"
 required "GOOS"
@@ -8,7 +8,6 @@ required "GOARCH"
 required "CGO_ENABLED"
 
 [ -z "$APP" ] || append "LDFLAGS" "-X 'main.appname=$APP$APP_SUFFIX'"
-[ -z "$VERSION" ] && VERSION="$(cat "$ROOT_DIR/VERSION")"
 [ -z "$VERSION" ] || append "LDFLAGS" "-X 'main.version=$VERSION'"
 [ -z "$COPYRIGHT" ] || append "LDFLAGS" "-X 'main.copyright=$COPYRIGHT'"
 [ -z "$LICENSE" ] || append "LDFLAGS" "-X 'main.license=$LICENSE'"
