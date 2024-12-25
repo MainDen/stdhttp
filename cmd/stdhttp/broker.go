@@ -30,8 +30,7 @@ func broker(ctx context.Context, config *configs.StdhttpBrokerConfig) {
 	go runx.AwaitDone(ctx, func() { listener.Close() })
 
 	processBrocker := controllers.NewProcessesBrokerController(config.WaitTimeout)
-	http.Handle("/api/v1/processes", httpx.HandleEvent(httpx.HandleLogger(http.StripPrefix("/api/v1", handlers.NewProcessesBrokerHttpHandler(processBrocker, stdout)))))
-	http.Handle("/api/v1/processes/", httpx.HandleEvent(httpx.HandleLogger(http.StripPrefix("/api/v1", handlers.NewProcessesBrokerHttpHandler(processBrocker, stdout)))))
+	http.Handle("/", httpx.HandleEvent(httpx.HandleLogger(handlers.NewProcessesBrokerHttpHandler(processBrocker, stdout))))
 	err = http.Serve(listener, http.DefaultServeMux)
 	if err != nil && !errors.Is(err, net.ErrClosed) {
 		logx.FatalContext(ctx, "Failed to serve", "error", err)

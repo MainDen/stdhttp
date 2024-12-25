@@ -25,27 +25,33 @@ type processesBroker interface {
 
 type processesBrokerHttpHandler struct {
 	processesBroker processesBroker
-	mux             *http.ServeMux
 	output          io.Writer
 }
 
 func NewProcessesBrokerHttpHandler(processesBroker processesBroker, output io.Writer) *processesBrokerHttpHandler {
-	handler := &processesBrokerHttpHandler{
+	return &processesBrokerHttpHandler{
 		processesBroker: processesBroker,
-		mux:             http.NewServeMux(),
 		output:          output,
 	}
-	handler.mux.HandleFunc("GET /processes", handler.list)
-	handler.mux.HandleFunc("POST /processes", handler.register)
-	handler.mux.HandleFunc("DELETE /processes", handler.killMany)
-	handler.mux.HandleFunc("DELETE /processes/{pid}", handler.kill)
-	handler.mux.HandleFunc("GET /processes/{pid}/command", handler.waitCommand)
-	handler.mux.HandleFunc("PUT /processes/{pid}/command", handler.sendCommand)
-	return handler
 }
 
 func (handler *processesBrokerHttpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	handler.mux.ServeHTTP(w, r)
+	switch op := r.URL.Query().Get("op"); op {
+	case "Register":
+		handler.register(w, r)
+	case "KillMany":
+		handler.killMany(w, r)
+	case "Kill":
+		handler.kill(w, r)
+	case "SendCommand":
+		handler.sendCommand(w, r)
+	case "WaitCommand":
+		handler.waitCommand(w, r)
+	case "List":
+		handler.list(w, r)
+	default:
+		http.Error(w, fmt.Sprintf("unknown op '%v'", op), http.StatusBadRequest)
+	}
 }
 
 func (handler *processesBrokerHttpHandler) register(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +114,7 @@ func (handler *processesBrokerHttpHandler) killMany(w http.ResponseWriter, r *ht
 }
 
 func (handler *processesBrokerHttpHandler) kill(w http.ResponseWriter, r *http.Request) {
-	pid, err := models.ParsePidPathItem(r.PathValue("pid"))
+	pid, err := strconv.Atoi(r.URL.Query().Get("pid"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -133,7 +139,7 @@ func (handler *processesBrokerHttpHandler) kill(w http.ResponseWriter, r *http.R
 }
 
 func (handler *processesBrokerHttpHandler) sendCommand(w http.ResponseWriter, r *http.Request) {
-	pid, err := models.ParsePidPathItem(r.PathValue("pid"))
+	pid, err := strconv.Atoi(r.URL.Query().Get("pid"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -164,7 +170,7 @@ func (handler *processesBrokerHttpHandler) sendCommand(w http.ResponseWriter, r 
 }
 
 func (handler *processesBrokerHttpHandler) waitCommand(w http.ResponseWriter, r *http.Request) {
-	pid, err := models.ParsePidPathItem(r.PathValue("pid"))
+	pid, err := strconv.Atoi(r.URL.Query().Get("pid"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

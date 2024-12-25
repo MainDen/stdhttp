@@ -1,9 +1,5 @@
 package models
 
-import (
-	"strconv"
-)
-
 type ProcessesBody struct {
 	Items []ProcessesBodyItem `json:"items"`
 }
@@ -53,12 +49,4 @@ func MakeProcessesBody(processes ...ProcessModel) ProcessesBody {
 		items = append(items, MakeProcessesBodyItem(process))
 	}
 	return ProcessesBody{Items: items}
-}
-
-func PidPathItem(pid int) string {
-	return strconv.Itoa(pid)
-}
-
-func ParsePidPathItem(pid string) (int, error) {
-	return strconv.Atoi(pid)
 }

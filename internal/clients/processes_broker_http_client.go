@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/mainden/stdhttp/internal/models"
@@ -35,7 +36,7 @@ func (client *processesBrokerHttpClient) WaitTimeout() time.Duration {
 
 func (client *processesBrokerHttpClient) Register(ctx context.Context, process models.ProcessModel) (err error) {
 	var resp *http.Response
-	if resp, err = httpx.DoJson(ctx, http.MethodPost, client.url, models.MakeProcessesBodyItem(process)); err != nil {
+	if resp, err = httpx.DoJson(ctx, http.MethodGet, client.url+"?"+url.Values{"op": {"Register"}}.Encode(), models.MakeProcessesBodyItem(process)); err != nil {
 		return err
 	}
 	if err = httpx.AsNothing(resp.Body); err != nil {
@@ -52,7 +53,7 @@ func (client *processesBrokerHttpClient) Register(ctx context.Context, process m
 
 func (client *processesBrokerHttpClient) Kill(ctx context.Context, pid int) (err error) {
 	var resp *http.Response
-	if resp, err = httpx.DoJson(ctx, http.MethodDelete, client.url+"/"+models.PidPathItem(pid), nil); err != nil {
+	if resp, err = httpx.DoJson(ctx, http.MethodGet, client.url+"?"+url.Values{"op": {"Kill"}, "pid": {strconv.Itoa(pid)}}.Encode(), nil); err != nil {
 		return err
 	}
 	if err = httpx.AsNothing(resp.Body); err != nil {
@@ -69,7 +70,7 @@ func (client *processesBrokerHttpClient) Kill(ctx context.Context, pid int) (err
 
 func (client *processesBrokerHttpClient) KillMany(ctx context.Context, pattern string) (err error) {
 	var resp *http.Response
-	if resp, err = httpx.DoJson(ctx, http.MethodDelete, client.url+"?"+url.Values{"pattern": {pattern}}.Encode(), nil); err != nil {
+	if resp, err = httpx.DoJson(ctx, http.MethodGet, client.url+"?"+url.Values{"op": {"KillMany"}, "pattern": {pattern}}.Encode(), nil); err != nil {
 		return err
 	}
 	if err = httpx.AsNothing(resp.Body); err != nil {
@@ -83,7 +84,7 @@ func (client *processesBrokerHttpClient) KillMany(ctx context.Context, pattern s
 
 func (client *processesBrokerHttpClient) SendCommand(ctx context.Context, pid int, command string) (err error) {
 	var resp *http.Response
-	if resp, err = httpx.DoJson(ctx, http.MethodPut, client.url+"/"+models.PidPathItem(pid)+"/command", command); err != nil {
+	if resp, err = httpx.DoJson(ctx, http.MethodGet, client.url+"?"+url.Values{"op": {"SendCommand"}, "pid": {strconv.Itoa(pid)}}.Encode(), command); err != nil {
 		return err
 	}
 	if err = httpx.AsNothing(resp.Body); err != nil {
@@ -105,7 +106,7 @@ func (client *processesBrokerHttpClient) WaitCommand(ctx context.Context, pid in
 	ctx, cancel := context.WithTimeout(ctx, client.waitTimeout+time.Second)
 	defer cancel()
 	var resp *http.Response
-	if resp, err = httpx.DoReader(ctx, http.MethodGet, client.url+"/"+models.PidPathItem(pid)+"/command", nil); err != nil {
+	if resp, err = httpx.DoReader(ctx, http.MethodGet, client.url+"?"+url.Values{"op": {"WaitCommand"}, "pid": {strconv.Itoa(pid)}}.Encode(), nil); err != nil {
 		return "", err
 	}
 	if resp.StatusCode == http.StatusOK {
@@ -131,7 +132,7 @@ func (client *processesBrokerHttpClient) WaitCommand(ctx context.Context, pid in
 
 func (client *processesBrokerHttpClient) List(ctx context.Context) (processes models.ProcessModels, err error) {
 	var resp *http.Response
-	if resp, err = httpx.DoReader(ctx, http.MethodGet, client.url, nil); err != nil {
+	if resp, err = httpx.DoReader(ctx, http.MethodGet, client.url+"?"+url.Values{"op": {"List"}}.Encode(), nil); err != nil {
 		return nil, err
 	}
 	if resp.StatusCode == http.StatusOK {
